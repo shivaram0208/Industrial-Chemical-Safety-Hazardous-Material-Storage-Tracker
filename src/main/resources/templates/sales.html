@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Sales - Hazmat Tracker</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            background: #f4f6f8;
+        }
+
+        header {
+            background: #1f4e79;
+            color: white;
+            padding: 20px;
+        }
+
+        nav {
+            background: #17365d;
+            padding: 12px 20px;
+        }
+
+        nav a {
+            color: white;
+            text-decoration: none;
+            margin-right: 20px;
+        }
+
+        .container {
+            padding: 30px;
+        }
+
+        .card {
+            background: white;
+            padding: 25px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+        }
+
+        button {
+            padding: 10px 18px;
+            background: #1f4e79;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-right: 10px;
+        }
+
+        pre {
+            background: #222;
+            color: #eee;
+            padding: 20px;
+            overflow: auto;
+        }
+    </style>
+</head>
+
+<body>
+
+<header>
+    <h1>Sales Management</h1>
+</header>
+
+<nav>
+    <a th:href="@{/}">Dashboard</a>
+    <a th:href="@{/products}">Products</a>
+    <a th:href="@{/storage}">Storage</a>
+    <a th:href="@{/intake}">Intake</a>
+    <a th:href="@{/inspection}">Inspection</a>
+    <a th:href="@{/procurement}">Procurement</a>
+    <a th:href="@{/sales}">Sales</a>
+    <a th:href="@{/budget-variance}">Reports</a>
+</nav>
+
+<div class="container">
+
+    <div class="card">
+        <h2>Sales Orders</h2>
+        <button onclick="loadOrders()">Load Orders</button>
+    </div>
+
+    <div class="card">
+        <h2>Customer Invoices</h2>
+        <button onclick="loadInvoices()">Load Invoices</button>
+    </div>
+
+    <div class="card">
+        <h2>Outstanding Receivables</h2>
+        <button onclick="loadReceivables()">Load Receivables</button>
+    </div>
+
+    <pre id="result">Select an option.</pre>
+
+</div>
+
+<script>
+
+    async function loadOrders() {
+
+        const response =
+            await fetch('/api/sales/orders');
+
+        const data = await response.json();
+
+        document.getElementById('result').textContent =
+            JSON.stringify(data, null, 2);
+    }
+
+    async function loadInvoices() {
+
+        const response =
+            await fetch('/api/sales/invoices');
+
+        const data = await response.json();
+
+        document.getElementById('result').textContent =
+            JSON.stringify(data, null, 2);
+    }
+
+    async function loadReceivables() {
+
+        const response =
+            await fetch('/api/sales/receivables/outstanding');
+
+        const data = await response.json();
+
+        document.getElementById('result').textContent =
+            JSON.stringify(data, null, 2);
+    }
+
+</script>
+
+</body>
+</html>

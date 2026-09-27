@@ -1,0 +1,655 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Budget Variance Report</title>
+
+    <style>
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, Helvetica, sans-serif;
+            background: #f4f8fb;
+            color: #243b53;
+        }
+
+        /* ================= HEADER ================= */
+
+        .top-header {
+            height: 120px;
+            background: linear-gradient(90deg, #075477, #00466a);
+            color: white;
+            display: flex;
+            align-items: center;
+            padding: 0 48px;
+        }
+
+        .brand {
+            width: 330px;
+            display: flex;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 40px;
+            margin-right: 15px;
+        }
+
+        .brand-text h1 {
+            margin: 0;
+            font-size: 18px;
+            line-height: 22px;
+            font-weight: bold;
+        }
+
+        .brand-text p {
+            margin: 6px 0 0;
+            font-size: 12px;
+        }
+
+        /* ================= NAVIGATION ================= */
+
+        .navigation {
+            flex: 1;
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            gap: 28px;
+        }
+
+        .navigation a {
+            color: white;
+            text-decoration: none;
+            font-size: 13px;
+            padding: 12px 8px;
+            border-radius: 5px;
+        }
+
+        .navigation a:hover {
+            background: rgba(255,255,255,0.15);
+        }
+
+        .navigation .active {
+            background: #1688d4;
+            padding: 12px 18px;
+        }
+
+        .profile {
+            margin-left: 18px;
+            width: 32px;
+            height: 32px;
+            background: #147ed1;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        /* ================= SUB HEADER ================= */
+
+        .sub-navigation {
+            position: absolute;
+            top: 94px;
+            left: 80px;
+            color: white;
+            font-size: 11px;
+            opacity: 0.9;
+        }
+
+        .sub-navigation span {
+            margin-right: 8px;
+        }
+
+        /* ================= MAIN ================= */
+
+        .container {
+            max-width: 1100px;
+            margin: 18px auto 40px;
+            padding: 0 20px;
+        }
+
+        /* ================= PAGE TITLE ================= */
+
+        .page-title {
+            background: linear-gradient(90deg, #075477, #075477);
+            color: white;
+            border-radius: 7px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            padding: 0 32px;
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+
+        .page-title-icon {
+            font-size: 25px;
+            margin-right: 20px;
+        }
+
+        /* ================= SUMMARY CARDS ================= */
+
+        .summary {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 14px;
+            margin-bottom: 15px;
+        }
+
+        .card {
+            height: 70px;
+            border-radius: 6px;
+            padding: 12px 18px;
+            display: flex;
+            align-items: center;
+            border: 1px solid;
+        }
+
+        .card-icon {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 22px;
+            margin-right: 15px;
+        }
+
+        .card-content h3 {
+            margin: 0;
+            font-size: 12px;
+            font-weight: normal;
+            color: #52708a;
+        }
+
+        .amount {
+            display: block;
+            margin-top: 5px;
+            font-size: 19px;
+            font-weight: bold;
+        }
+
+        /* Budget */
+
+        .budget-card {
+            background: #eef7ff;
+            border-color: #cce5fa;
+        }
+
+        .budget-card .card-icon {
+            background: #d7ebff;
+            color: #0878c9;
+        }
+
+        .budget-card .amount {
+            color: #006ac6;
+        }
+
+        /* Actual */
+
+        .actual-card {
+            background: #f0fbf8;
+            border-color: #cdeee6;
+        }
+
+        .actual-card .card-icon {
+            background: #d9f4ec;
+            color: #11a579;
+        }
+
+        .actual-card .amount {
+            color: #07966d;
+        }
+
+        /* Variance */
+
+        .variance-card {
+            background: #fff2f3;
+            border-color: #ffd4d7;
+        }
+
+        .variance-card .card-icon {
+            background: #ffe1e3;
+            color: #ef4c55;
+        }
+
+        .variance-card .amount {
+            color: #ed3d47;
+        }
+
+        /* ================= REPORT ================= */
+
+        .report-box {
+            background: white;
+            border-radius: 6px;
+            padding: 15px;
+            box-shadow: 0 1px 5px rgba(0,0,0,0.08);
+        }
+
+        .report-heading {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .report-heading-icon {
+            font-size: 20px;
+            margin-right: 15px;
+            color: #075477;
+        }
+
+        .report-heading h2 {
+            margin: 0;
+            font-size: 15px;
+            color: #173d5c;
+        }
+
+        /* ================= TABLE ================= */
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 11px;
+        }
+
+        th {
+            background: #edf4f8;
+            color: #244966;
+            text-align: left;
+            padding: 9px 15px;
+            border: 1px solid #d9e5ec;
+            font-weight: bold;
+        }
+
+        td {
+            padding: 8px 15px;
+            border: 1px solid #d9e5ec;
+            color: #40576b;
+            background: white;
+        }
+
+        tr:hover td {
+            background: #f8fbfd;
+        }
+
+        .positive {
+            color: #19a779;
+            font-weight: bold;
+        }
+
+        .negative {
+            color: #ff3038;
+            font-weight: bold;
+        }
+
+        /* ================= UTILISATION ================= */
+
+        .utilisation {
+            margin-top: 13px;
+            background: #edf7ff;
+            border-radius: 5px;
+            min-height: 58px;
+            display: flex;
+            align-items: center;
+            padding: 10px 15px;
+        }
+
+        .utilisation-icon {
+            font-size: 25px;
+            margin-right: 15px;
+            color: #0879ce;
+        }
+
+        .utilisation-content strong {
+            font-size: 14px;
+            color: #173d5c;
+        }
+
+        .utilisation-content strong span {
+            color: #076ed0;
+        }
+
+        .utilisation-content p {
+            margin: 5px 0 0;
+            font-size: 9px;
+            color: #6d8aa0;
+        }
+
+        /* ================= RESPONSIVE ================= */
+
+        @media screen and (max-width: 1000px) {
+
+            .top-header {
+                padding: 0 20px;
+            }
+
+            .navigation {
+                gap: 10px;
+            }
+
+            .navigation a {
+                font-size: 11px;
+            }
+
+            .brand {
+                width: 280px;
+            }
+        }
+
+        @media screen and (max-width: 750px) {
+
+            .top-header {
+                height: auto;
+                min-height: 120px;
+                padding: 15px;
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .brand {
+                width: 100%;
+            }
+
+            .navigation {
+                width: 100%;
+                margin-top: 15px;
+                justify-content: flex-start;
+                flex-wrap: wrap;
+            }
+
+            .sub-navigation {
+                display: none;
+            }
+
+            .summary {
+                grid-template-columns: 1fr;
+            }
+
+            table {
+                font-size: 10px;
+            }
+
+            th,
+            td {
+                padding: 7px;
+            }
+        }
+
+    </style>
+</head>
+
+<body>
+
+<!-- ================= HEADER ================= -->
+
+<header class="top-header">
+
+    <div class="brand">
+
+        <div class="logo">
+            ⚗
+        </div>
+
+        <div class="brand-text">
+
+            <h1>
+                Industrial Chemical Safety &<br>
+                Hazardous Material Storage Tracker
+            </h1>
+
+            <p>
+                Safety &nbsp;•&nbsp;
+                Storage &nbsp;•&nbsp;
+                Billing &nbsp;•&nbsp;
+                Accounting &nbsp;•&nbsp;
+                Budget
+            </p>
+
+        </div>
+
+    </div>
+
+
+    <!-- ================= NAVIGATION ================= -->
+
+    <nav class="navigation">
+
+        <a th:href="@{/}">Dashboard</a>
+
+        <a href="/products">Products</a>
+
+        <a href="/storage">Storage</a>
+
+        <a href="/intake">Intake</a>
+
+        <a href="/inspection">Inspection</a>
+
+        <a href="/procurement">Procurement</a>
+
+        <a href="/sales">Sales</a>
+
+        <a href="/budget-variance" class="active">Reports</a>
+
+        <div class="profile">
+            SR
+        </div>
+
+    </nav>
+
+</header>
+
+
+<!-- ================= MAIN ================= -->
+
+<main class="container">
+
+
+    <!-- PAGE TITLE -->
+
+    <div class="page-title">
+
+        <span class="page-title-icon">
+            📄
+        </span>
+
+        Budget Variance Report
+
+    </div>
+
+
+    <!-- ================= SUMMARY ================= -->
+
+    <section class="summary">
+
+
+        <!-- ALLOCATED -->
+
+        <div class="card budget-card">
+
+            <div class="card-icon">
+                💰
+            </div>
+
+            <div class="card-content">
+
+                <h3>
+                    Allocated Budget
+                </h3>
+
+                <span class="amount"
+                      th:text="'Rs. ' + ${allocatedBudget}">
+                    Rs. 5,00,000
+                </span>
+
+            </div>
+
+        </div>
+
+
+        <!-- ACTUAL -->
+
+        <div class="card actual-card">
+
+            <div class="card-icon">
+                💼
+            </div>
+
+            <div class="card-content">
+
+                <h3>
+                    Actual Amount
+                </h3>
+
+                <span class="amount"
+                      th:text="'Rs. ' + ${actualAmount}">
+                    Rs. 3,75,000
+                </span>
+
+            </div>
+
+        </div>
+
+
+        <!-- VARIANCE -->
+
+        <div class="card variance-card">
+
+            <div class="card-icon">
+                ⚖
+            </div>
+
+            <div class="card-content">
+
+                <h3>
+                    Budget Variance
+                </h3>
+
+                <span class="amount"
+                      th:text="'Rs. ' + ${variance}">
+                    Rs. 1,25,000
+                </span>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- ================= REPORT TABLE ================= -->
+
+    <section class="report-box">
+
+        <div class="report-heading">
+
+            <span class="report-heading-icon">
+                ☷
+            </span>
+
+            <h2>
+                Budget and Expense Details
+            </h2>
+
+        </div>
+
+
+        <table>
+
+            <thead>
+
+            <tr>
+
+                <th>
+                    Account
+                </th>
+
+                <th>
+                    Budgeted Amount
+                </th>
+
+                <th>
+                    Actual Amount
+                </th>
+
+                <th>
+                    Variance
+                </th>
+
+            </tr>
+
+            </thead>
+
+
+            <tbody>
+
+            <tr th:each="line : ${budgetLines}">
+
+                <td th:text="${line.account}">
+                    Chemical Purchase
+                </td>
+
+                <td th:text="'Rs. ' + ${line.budgeted}">
+                    Rs. 2,00,000
+                </td>
+
+                <td th:text="'Rs. ' + ${line.actual}">
+                    Rs. 1,65,000
+                </td>
+
+                <td th:class="${line.variance >= 0 ? 'positive' : 'negative'}"
+                    th:text="'Rs. ' + ${line.variance}">
+                    Rs. 35,000
+                </td>
+
+            </tr>
+
+            </tbody>
+
+        </table>
+
+
+        <!-- ================= UTILISATION ================= -->
+
+        <div class="utilisation">
+
+            <div class="utilisation-icon">
+                ◔
+            </div>
+
+            <div class="utilisation-content">
+
+                <strong>
+                    Budget Utilisation:
+                    <span th:text="${utilisationPct} + '%'">
+                        75%
+                    </span>
+                </strong>
+
+                <p>
+                    This report provides a comparison between the allocated
+                    budget and actual financial transactions recorded
+                    in the system.
+                </p>
+
+            </div>
+
+        </div>
+
+    </section>
+
+</main>
+
+</body>
+
+</html>

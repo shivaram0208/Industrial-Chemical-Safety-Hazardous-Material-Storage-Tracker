@@ -1,0 +1,312 @@
+{
+  "info": {
+    "name": "Hazmat Tracker API",
+    "description": "Industrial Chemical Safety & Hazardous Material Storage Tracker - end-to-end flow",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:8080" },
+    { "key": "customerId", "value": "1" },
+    { "key": "vendorId", "value": "2" },
+    { "key": "storageProductId", "value": "1" },
+    { "key": "agentProductId", "value": "2" },
+    { "key": "inspectionProductId", "value": "3" },
+    { "key": "vaultId", "value": "1" },
+    { "key": "soId", "value": "1" },
+    { "key": "invoiceId", "value": "1" },
+    { "key": "poId", "value": "1" },
+    { "key": "billId", "value": "1" },
+    { "key": "analyticAccountId", "value": "1" },
+    { "key": "budgetId", "value": "1" }
+  ],
+  "item": [
+    {
+      "name": "A. Master Data",
+      "item": [
+        {
+          "name": "Create Customer (Chemical Manufacturer)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/api/contacts",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"AlphaChem Manufacturing Ltd\",\n  \"type\": \"CUSTOMER\",\n  \"email\": \"ops@alphachem.com\",\n  \"phone\": \"9876543210\",\n  \"address\": \"Industrial Estate, Coimbatore\",\n  \"gstOrTaxId\": \"GSTIN123456\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Create Vendor (Neutralization Agent Vendor)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/api/contacts",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"SafeNeutra Supplies Pvt Ltd\",\n  \"type\": \"VENDOR\",\n  \"email\": \"sales@safeneutra.com\",\n  \"phone\": \"9123456780\",\n  \"address\": \"Chemical Park, Coimbatore\",\n  \"gstOrTaxId\": \"GSTIN654321\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Create Product - Hazmat Storage Space",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/api/products",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Hazmat Storage Space\",\n  \"type\": \"SERVICE\",\n  \"unitPrice\": 500.00,\n  \"unitOfMeasure\": \"per sq.ft/month\",\n  \"hazardClass\": \"General\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Create Product - Neutralization Agent",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/api/products",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Neutralization Agent\",\n  \"type\": \"GOODS\",\n  \"unitPrice\": 250.00,\n  \"unitOfMeasure\": \"per litre\",\n  \"hazardClass\": \"Corrosive\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Create Product - Compliance Safety Inspection",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/api/products",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Compliance Safety Inspection\",\n  \"type\": \"SERVICE\",\n  \"unitPrice\": 1500.00,\n  \"unitOfMeasure\": \"per inspection\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Get Chart of Accounts (auto-seeded)",
+          "request": { "method": "GET", "url": "{{baseUrl}}/api/accounts" }
+        },
+        {
+          "name": "Get Journals (auto-seeded)",
+          "request": { "method": "GET", "url": "{{baseUrl}}/api/journals" }
+        }
+      ]
+    },
+    {
+      "name": "B. Hazmat Storage & Expiry",
+      "item": [
+        {
+          "name": "Create Vault",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/api/hazmat/vaults",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"vaultCode\": \"VAULT-A1\",\n  \"zone\": \"Sector 4\",\n  \"totalCapacity\": 10000,\n  \"hazardClassAllowed\": \"Corrosive\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Log Chemical Intake",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/api/hazmat/intake",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"vaultId\": {{vaultId}},\n  \"customerId\": {{customerId}},\n  \"lotNumber\": \"LOT-2026-001\",\n  \"chemicalName\": \"Sulfuric Acid\",\n  \"quantity\": 500,\n  \"intakeDate\": \"2026-09-27\",\n  \"expiryDate\": \"2026-10-15\",\n  \"hazardClass\": \"Corrosive\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Get Expiring Lots (next 30 days)",
+          "request": { "method": "GET", "url": "{{baseUrl}}/api/hazmat/expiring?days=30" }
+        },
+        {
+          "name": "Get Expired Lots",
+          "request": { "method": "GET", "url": "{{baseUrl}}/api/hazmat/expired" }
+        },
+        {
+          "name": "Schedule Safety Inspection",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/api/hazmat/inspections",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"vault\": { \"id\": {{vaultId}} },\n  \"scheduledDate\": \"2026-10-05\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Complete Inspection",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/api/hazmat/inspections/1/complete",
+            "body": { "mode": "raw", "raw": "\"All clear, no violations found\"" }
+          }
+        }
+      ]
+    },
+    {
+      "name": "C. Sales Flow (Storage Billing)",
+      "item": [
+        {
+          "name": "Create Sales Order",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/api/sales/orders",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"soNumber\": \"SO-2026-001\",\n  \"customerId\": {{customerId}},\n  \"orderDate\": \"2026-09-27\",\n  \"lines\": [\n    { \"productId\": {{storageProductId}}, \"quantity\": 10 }\n  ]\n}"
+            }
+          }
+        },
+        {
+          "name": "Confirm Sales Order",
+          "request": { "method": "PUT", "url": "{{baseUrl}}/api/sales/orders/{{soId}}/confirm" }
+        },
+        {
+          "name": "Convert SO to Customer Invoice",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/sales/orders/{{soId}}/invoice?invoiceNumber=INV-2026-001&invoiceDate=2026-09-27"
+          }
+        },
+        {
+          "name": "Get All Customer Invoices",
+          "request": { "method": "GET", "url": "{{baseUrl}}/api/sales/invoices" }
+        },
+        {
+          "name": "Collect Payment (Bank)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/api/sales/invoices/{{invoiceId}}/pay",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"paymentNumber\": \"RCPT-2026-001\",\n  \"amount\": 5000.00,\n  \"paymentDate\": \"2026-09-27\",\n  \"method\": \"BANK\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Get Outstanding Receivables",
+          "request": { "method": "GET", "url": "{{baseUrl}}/api/sales/receivables/outstanding" }
+        }
+      ]
+    },
+    {
+      "name": "D. Purchase Flow (Neutralization Kits)",
+      "item": [
+        {
+          "name": "Create Purchase Order",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/api/purchase/orders",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"poNumber\": \"PO-2026-001\",\n  \"vendorId\": {{vendorId}},\n  \"orderDate\": \"2026-09-27\",\n  \"lines\": [\n    { \"productId\": {{agentProductId}}, \"quantity\": 20 }\n  ]\n}"
+            }
+          }
+        },
+        {
+          "name": "Confirm Purchase Order",
+          "request": { "method": "PUT", "url": "{{baseUrl}}/api/purchase/orders/{{poId}}/confirm" }
+        },
+        {
+          "name": "Convert PO to Vendor Bill",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/purchase/orders/{{poId}}/bill?billNumber=BILL-2026-001&billDate=2026-09-27"
+          }
+        },
+        {
+          "name": "Get All Vendor Bills",
+          "request": { "method": "GET", "url": "{{baseUrl}}/api/purchase/bills" }
+        },
+        {
+          "name": "Pay Vendor Bill (Bank)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/api/purchase/bills/{{billId}}/pay",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"paymentNumber\": \"PAY-2026-001\",\n  \"amount\": 5000.00,\n  \"paymentDate\": \"2026-09-27\",\n  \"method\": \"BANK\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Get Outstanding Payables",
+          "request": { "method": "GET", "url": "{{baseUrl}}/api/purchase/payables/outstanding" }
+        }
+      ]
+    },
+    {
+      "name": "E. Budget Flow",
+      "item": [
+        {
+          "name": "Create Analytic Account (Containment Sector)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/api/budget/analytic-accounts",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Hazardous Materials Depot Sector 4\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Create Budget",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/api/budget/budgets",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"analyticAccount\": { \"id\": {{analyticAccountId}} },\n  \"name\": \"Sector 4 Safety Ops Budget - Q4 2026\",\n  \"periodStart\": \"2026-10-01\",\n  \"periodEnd\": \"2026-12-31\",\n  \"allocatedAmount\": 100000.00\n}"
+            }
+          }
+        },
+        {
+          "name": "Record Actual Expense Against Budget",
+          "request": {
+            "method": "PUT",
+            "url": "{{baseUrl}}/api/budget/budgets/{{budgetId}}/record-actual?amount=5000.00"
+          }
+        },
+        {
+          "name": "Get All Budgets",
+          "request": { "method": "GET", "url": "{{baseUrl}}/api/budget/budgets" }
+        }
+      ]
+    },
+    {
+      "name": "F. Reports",
+      "item": [
+        {
+          "name": "Balance Sheet",
+          "request": { "method": "GET", "url": "{{baseUrl}}/api/reports/balance-sheet" }
+        },
+        {
+          "name": "Profit & Loss",
+          "request": { "method": "GET", "url": "{{baseUrl}}/api/reports/profit-and-loss" }
+        },
+        {
+          "name": "Budget Variance Report",
+          "request": { "method": "GET", "url": "{{baseUrl}}/api/reports/budget-variance" }
+        },
+        {
+          "name": "All Journal Entries (Ledger)",
+          "request": { "method": "GET", "url": "{{baseUrl}}/api/journals/entries" }
+        }
+      ]
+    }
+  ]
+}
